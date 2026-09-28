@@ -1,0 +1,3 @@
+celery[redis]>=5.4      # JOB_BACKEND=celery
+qdrant-client>=1.10     # VECTOR_BACKEND=qdrant (embedded/local mode works offline)
+minio>=7.2              # STORAGE_BACKEND=minio

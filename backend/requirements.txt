@@ -1,0 +1,21 @@
+# --- API / DB ---
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+pydantic-settings>=2.3
+python-multipart>=0.0.9
+SQLAlchemy>=2.0.30
+psycopg2-binary>=2.9
+alembic>=1.13
+# --- geospatial (rasterio wheels bundle GDAL) ---
+rasterio>=1.3.10
+shapely>=2.0
+pyproj>=3.6
+geopandas>=0.14
+# --- ML / vectors ---
+numpy>=1.26
+scikit-learn>=1.3        # HDBSCAN lives in sklearn.cluster (>=1.3)
+opencv-python-headless>=4.9
+faiss-cpu>=1.8
+pillow>=10.0
+# PyTorch is needed only for real (non-mock) models; installed via Dockerfile ARG or requirements-ml.txt
