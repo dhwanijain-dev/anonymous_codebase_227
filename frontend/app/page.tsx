@@ -35,10 +35,13 @@ import {
   Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { detectDemoScenario, type DemoScenarioKey } from '@/lib/demo-scenarios'
+import { DemoResponseRenderer } from '@/components/demo-responses'
+import { DemoQueryPanel } from '@/components/demo-panel'
 
 type Result = { id: number; title: string; date: string; score: string; tone: string }
 
-const heroImage = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image.png-PgqJikL117i8ucund9m8w47ciRtBeH.jpeg'
+// const heroImage = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image.png-PgqJikL117i8ucund9m8w47ciRtBeH.jpeg'
 const suggestions = [
   'Show me newly built structures near a river',
   'Find vehicle concentrations in Ladakh',
@@ -71,6 +74,7 @@ export default function Page() {
   const [showHelp, setShowHelp] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [selected, setSelected] = useState<Result | null>(null)
+  const [demoScenario, setDemoScenario] = useState<DemoScenarioKey | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const results = useMemo(() => makeResults(submitted || 'new structures near river'), [submitted])
   const mode = files.length > 1 ? 'Change analysis' : files.length === 1 ? 'Similar imagery' : submitted.toLowerCase().includes('queue') || submitted.toLowerCase().includes('review') ? 'Review queue' : submitted.toLowerCase().includes('geotiff') || submitted.toLowerCase().includes('ingest') ? 'Offline ingestion' : submitted.toLowerCase().includes('quality') || submitted.toLowerCase().includes('cloud') || submitted.toLowerCase().includes('seasonal') ? 'Quality engine' : submitted.toLowerCase().includes('similar') || submitted.toLowerCase().includes('site') ? 'Discovery & clustering' : 'Semantic search'
@@ -78,13 +82,17 @@ export default function Page() {
   function submit(value = query) {
     if ((!value.trim() && files.length === 0) || isGenerating) return
     const nextPrompt = value.trim() || 'Analyze the attached imagery'
+    const detected = detectDemoScenario(nextPrompt)
     setIsGenerating(true)
     setSubmitted('')
+    setDemoScenario(null)
     setRecent((items) => [nextPrompt, ...items.filter((item) => item !== nextPrompt)].slice(0, 8))
+    const delay = detected ? 1200 : 1800
     window.setTimeout(() => {
       setSubmitted(nextPrompt)
+      setDemoScenario(detected)
       setIsGenerating(false)
-    }, 1800)
+    }, delay)
   }
 
   function startNewChat() {
@@ -92,6 +100,7 @@ export default function Page() {
     setSubmitted('')
     setFiles([])
     setIsGenerating(false)
+    setDemoScenario(null)
     setRecent((items) => ['New chat', ...items.filter((item) => item !== 'New chat')].slice(0, 8))
   }
 
@@ -120,12 +129,12 @@ export default function Page() {
       {!sidebarOpen && <button className="open-sidebar" onClick={() => setSidebarOpen(true)} aria-label="Open sidebar"><Menu /></button>}
       <section className="workspace">
         <header className="topbar"><div className="topbar-spacer" /><button className="world-select"><Globe2 /> World View <ChevronDown /></button><button className="top-icon"><span>☼</span></button><button className="top-icon"><Bell /></button><div className="profile">DJ</div></header>
-        {!submitted && !isGenerating && <div className="hero" style={{ backgroundImage: `linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.92) 82%), url(${heroImage})` }}>
+        {!submitted && !isGenerating && <div className="hero" style={{ backgroundImage: `linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.92) 82%), ` }}>
           <div className="hero-copy"><div className="eyebrow">O B S E R V E<br />U N D E R S T A N D<br />A N T I C I P A T E</div><div className="hero-title"><h1>DRISHTI</h1><p>Your Geospatial Intelligence Assistant</p><span>Search. Analyse. Discover. Monitor Change.</span><i /></div><div className="feature-pills"><span><Satellite /> Satellite Imagery</span><span><AreaChart /> Multi-temporal Analysis</span><span><Link2 /> Semantic Search</span><span><Layers3 /> Discovery & Clustering</span></div></div>
         </div>}
         <div className={`content-area ${submitted || isGenerating ? 'chat-mode' : ''} ${isGenerating ? 'content-generating' : ''}`}>
           {isGenerating && <div className="generation-state" role="status"><div className="shimmer-orbit"><Sparkles /></div><div><strong>Generating intelligence</strong><span>Scanning the simulated archive · classifying observations · ranking results</span></div><div className="shimmer-line" /></div>}
-          {submitted && <div className="conversation"><div className="chat-row user-row"><div className="profile small">DJ</div><div className="user-prompt"><p>{submitted}</p>{files.length > 0 && <small>{files.length} attachment{files.length > 1 ? 's' : ''} included</small>}</div></div><div className="chat-row assistant-row"><div className="mini-logo">▲</div><div className="assistant-message"><div className="assistant-label"><strong>Drishti Intelligence</strong><span className="status-dot" /> Simulated result</div><p>I analyzed your request using the simulated geospatial archive. I found {results.length} ranked observations matching this intent, classified as <b>{mode}</b>.</p></div></div><section className="results chat-results"><div className="results-heading"><div><span className="eyebrow dark">SIMULATED ARCHIVE RESPONSE</span><h2>{results.length} matching observations</h2><p>Ranked by relevance · {mode} · 42 ms</p></div><Button variant="outline"><Filter data-icon="inline-start" /> Refine results</Button></div><div className="result-grid">{results.map((result) => <button className="result-card" key={result.id} onClick={() => setSelected(result)}><div className="sat-tile" style={{ background: `linear-gradient(135deg, transparent 40%, rgba(29,77,65,.45) 41% 55%, transparent 56%), radial-gradient(circle at ${20 + result.id * 8}% ${28 + result.id * 5}%, rgba(54,113,83,.7), transparent 28%), repeating-linear-gradient(${result.id * 13}deg, ${result.tone}, #d4c38d 8px, #829d7e 18px)` }}><span>SCN-{String(3030 + result.id)}</span></div><div className="card-meta"><strong>#{result.id + 1} · {result.score}</strong><span>{result.title}</span><small>{result.date} · Sentinel-{result.id % 2 ? '2B' : '2A'}</small></div></button>)}</div></section></div>}
+          {submitted && <div className="conversation"><div className="chat-row user-row"><div className="profile small">DJ</div><div className="user-prompt"><p>{submitted}</p>{files.length > 0 && <small>{files.length} attachment{files.length > 1 ? 's' : ''} included</small>}</div></div>{demoScenario ? <div className="chat-row assistant-row"><div className="mini-logo">▲</div><DemoResponseRenderer scenario={demoScenario} /></div> : <><div className="chat-row assistant-row"><div className="mini-logo">▲</div><div className="assistant-message"><div className="assistant-label"><strong>Drishti Intelligence</strong><span className="status-dot" /> Simulated result</div><p>I analyzed your request using the simulated geospatial archive. I found {results.length} ranked observations matching this intent, classified as <b>{mode}</b>.</p></div></div><section className="results chat-results"><div className="results-heading"><div><span className="eyebrow dark">SIMULATED ARCHIVE RESPONSE</span><h2>{results.length} matching observations</h2><p>Ranked by relevance · {mode} · 42 ms</p></div><Button variant="outline"><Filter data-icon="inline-start" /> Refine results</Button></div><div className="result-grid">{results.map((result) => <button className="result-card" key={result.id} onClick={() => setSelected(result)}><div className="sat-tile" style={{ background: `linear-gradient(135deg, transparent 40%, rgba(29,77,65,.45) 41% 55%, transparent 56%), radial-gradient(circle at ${20 + result.id * 8}% ${28 + result.id * 5}%, rgba(54,113,83,.7), transparent 28%), repeating-linear-gradient(${result.id * 13}deg, ${result.tone}, #d4c38d 8px, #829d7e 18px)` }}><span>SCN-{String(3030 + result.id)}</span></div><div className="card-meta"><strong>#{result.id + 1} · {result.score}</strong><span>{result.title}</span><small>{result.date} · Sentinel-{result.id % 2 ? '2B' : '2A'}</small></div></button>)}</div></section></>}</div>}
           <div className="composer-wrap">
             <div className="composer-top"><textarea value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); submit() } }} placeholder="Ask a question about satellite imagery..." aria-label="Ask a question about satellite imagery" />
               <button className="examples">Examples <ChevronDown /></button><button className="attach-icon" aria-label="Attach image" onClick={() => fileRef.current?.click()}><ImagePlus /></button><input ref={fileRef} type="file" accept="image/*,video/*" multiple hidden onChange={(e) => setFiles(Array.from(e.target.files || []).slice(0, 2))} /></div>
@@ -135,6 +144,7 @@ export default function Page() {
             <div className="mode-line"><span>Detected search type</span><b>{mode}</b><code>{files.length > 1 ? 'POST /change/analyze' : files.length === 1 ? 'POST /search/image/upload' : 'POST /search/text'}</code></div>
           </div>
           {!submitted && <div className="suggestions"><span>Try asking</span>{suggestions.map((item) => <button key={item} onClick={() => selectSuggestion(item)}>{item}</button>)}</div>}
+          <DemoQueryPanel onSelect={(q) => setQuery(q)} />
 
         </div>
       </section>
