@@ -11,7 +11,7 @@ focused interface for exploring the main intelligence workflows.
 
 ## Demo
 
-Video Demonstration: **[Demo Video](https://youtu.be/IokJ73amCbc)**
+Video Demonstration: **[![Demo Video](public/assets/thumbnail.png)](https://youtu.be/IokJ73amCbc)**
 
 ## Highlights
 
@@ -89,18 +89,7 @@ SQLite is supported for laptop development and tests. PostgreSQL/PostGIS is reco
 spatial workloads.
 
 ## Architecture
-
-```text
-GeoTIFF/COG archive
-	  |
-	  v
-  Ingestion and tiling --> quality assessment --> embeddings and vector index
-	  |                                      |
-	  +--> PostgreSQL/PostGIS metadata       +--> semantic/image retrieval
-									 |
-									 v
-				 change engine --> reranking --> review --> provenance/export
-```
+[Architecture](/frontend/public/assets/github-architecutre.png)
 
 The FastAPI routes expose the service contract, while the service layer coordinates ingestion,
 retrieval, change detection, discovery, review, provenance, and export. FAISS is the default
