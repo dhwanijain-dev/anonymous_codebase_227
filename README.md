@@ -11,8 +11,7 @@ focused interface for exploring the main intelligence workflows.
 
 ## Demo
 
-Video Demonstration: **[![Demo Video](public/assets/thumbnail.png)](https://youtu.be/IokJ73amCbc)**
-
+Video Demonstration: [![Demo Video](frontend/public/assets/thumbnail.png)](https://youtu.be/IokJ73amCbc)
 ## Highlights
 
 - **Semantic search:** Find scenes using natural-language queries such as “newly built structures near a river”.
@@ -89,7 +88,9 @@ SQLite is supported for laptop development and tests. PostgreSQL/PostGIS is reco
 spatial workloads.
 
 ## Architecture
-[Architecture](/frontend/public/assets/github-architecutre.png)
+
+
+![Architecture](frontend/public/assets/github-architecutre.png)
 
 The FastAPI routes expose the service contract, while the service layer coordinates ingestion,
 retrieval, change detection, discovery, review, provenance, and export. FAISS is the default
